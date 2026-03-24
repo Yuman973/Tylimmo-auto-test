@@ -45,7 +45,6 @@ test ('ith', async({ page }) => {
     // cliquez sur email 
     await page.click('span:has-text("Email")');
 
-
     //remplir lemail
     const email = generateEmail();
     await page.fill ('input[placeholder="exemple@email.com"]', email);
@@ -68,28 +67,35 @@ test ('ith', async({ page }) => {
     await inputs.nth(2).fill(otp[2]);
     await inputs.nth(3).fill(otp[3]);
     await inputs.nth(4).fill(otp[4]);
-    await page.waitForTimeout(10000);
 
     //Finaliser la création
     await page.click('span:has-text("Créer")');
 
-    //Payer 
+    //Payer
     await page.click('button:has-text("Payer maintenant")');
+    //Attendre que l'iframe apparaisse dans le DOM
+    const frameLocator = await page.waitForSelector('iframe[title="Page de paiement"]', { state: 'attached' });
 
-    //att que la page de paiement souvre
-    await page.locator('iframe[title="Page de paiement"]').contentFrame().locator('button').filter({ hasText: 'Orange money' }).click();
-  
+    //Récupérer le contentFrame
+    const content = await frameLocator.contentFrame();
 
-    //remplir le num
-    await page.click('input[placeholder="Numéro de téléphone"]', "0102030405");
+    //Vérifier que le contentFrame existe
+    if (!content) throw new Error("L'iframe n'est pas encore prête !");
 
-    //remplir le code 
-    await page.click('input[placeholder="0000"]', "0000");
+    //tu peux cliquer / fill dans l'iframe
+    await content.click("button:has-text('Orange money')");
+    await content.click("button:has-text('Orange money')");
+    await content.fill('input[placeholder="Numéro de téléphone"]', "0102030405");
+    await content.fill('input[placeholder="0000"]', "0000");
+    await content.click("span:has-text('En procédant au paiement, vous acceptez les')");
+    await content.click('button:has-text("Effectuer le paiement")');
 
-    //accepter les conditions
-    await page.click("span:has-text('Veuillez accepter les')");
+    //c compris
+    await page.click('button.bg-primary-500');
 
-    //Effectuer le paiement
-    await page.click('button:has-text("Effectuer le paiement")');
+    //KYC
+    await page.click('p:has-text("Vérifier mon KYC")');
+
+    //la suite est chiante faut quil ouvre le FAP se connecte avec un compte valider le KYC 
 
 })
