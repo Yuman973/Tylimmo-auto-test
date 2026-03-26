@@ -69,6 +69,7 @@ test ('ith', async({ page }) => {
     await inputs.nth(4).fill(otp[4]);
 
     //Finaliser la création
+    await page.waitForSelector('span:has-text("Créer")');
     await page.click('span:has-text("Créer")');
 
     //Payer
@@ -83,18 +84,13 @@ test ('ith', async({ page }) => {
     if (!content) throw new Error("L'iframe n'est pas encore prête !");
 
     //tu peux cliquer / fill dans l'iframe
+    await content.waitForSelector("button:has-text('Orange money')");
     await content.click("button:has-text('Orange money')");
     await content.click("button:has-text('Orange money')");
     await content.fill('input[placeholder="Numéro de téléphone"]', "0102030405");
     await content.fill('input[placeholder="0000"]', "0000");
     await content.click("span:has-text('En procédant au paiement, vous acceptez les')");
     await content.click('button:has-text("Effectuer le paiement")');
-
-    //c compris
-    await page.click('button.bg-primary-500');
-
-    //KYC
-    await page.click('p:has-text("Vérifier mon KYC")');
 
     //la suite est chiante faut quil ouvre le FAP se connecte avec un compte valider le KYC 
 
